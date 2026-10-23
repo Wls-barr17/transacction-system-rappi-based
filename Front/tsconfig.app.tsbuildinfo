@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/kpicard.tsx","./src/components/layout.tsx","./src/pages/commercespage.tsx","./src/pages/dashboardpage.tsx","./src/pages/driverspage.tsx","./src/pages/orderspage.tsx","./src/pages/productspage.tsx","./src/pages/promotionspage.tsx","./src/services/mockdata.ts","./src/types/index.ts"],"version":"5.9.3"}
