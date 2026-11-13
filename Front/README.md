@@ -26,6 +26,7 @@ Abre http://localhost:5173
 |---|---|
 | Cliente | cliente@demo.com |
 | Comercio | comercio@demo.com (Pizzería) · comercio2@demo.com · comercio3@demo.com |
+| Comercio (mercado y farmacia de demostración) | mercado@demo.com · farmacia@demo.com |
 | Repartidor | repartidor@demo.com · repartidor2@demo.com |
 | Administrador | admin@demo.com |
 
@@ -43,14 +44,14 @@ Cupones: `BIENVENIDO10` (10%) y `PROMO5000` ($5.000 en compras desde $20.000).
 Por defecto `.env` tiene `VITE_USE_MOCK=true`: todo se guarda en el `localStorage` del navegador
 (archivo `src/lib/mockDb.js`) para que puedas probar sin servidor.
 
-Cuando tengas tu API REST:
-1. En `.env` pon `VITE_USE_MOCK=false`.
-2. En `vite.config.js` ajusta el `target` del proxy (por defecto `http://localhost:8080`).
-3. Tu API debe responder en las mismas rutas que usa el mock (`/api/auth/login`, `/api/auth/register`,
-   `/api/merchants`, `/api/orders`, `/api/payments/simulate`, `/api/notifications`, …).
-   El JWT se envía en `Authorization: Bearer <token>`. La lista completa de rutas está en `src/lib/mockDb.js`.
-4. Los errores deben devolver `{ "message": "texto" }` con el status HTTP correspondiente
-   (el stock agotado usa 409 con `{ "message": "...", "outOfStock": [{ "productId", "name", "available" }] }`).
+El repositorio incluye una API Spring Boot conectada a Supabase PostgreSQL en `../backend`.
+
+1. Sigue [`../backend/README.md`](../backend/README.md) y ejecuta el SQL de esquema en Supabase.
+2. Copia `.env.example` como `.env` y configura `VITE_USE_MOCK=false`.
+3. Vite reenvía `/api` a `http://localhost:8080`.
+4. La API devuelve errores con `{ "message": "texto" }` y autentica las rutas privadas con JWT en `Authorization: Bearer <token>`.
+
+El modo real cubre registro y login, catálogo, direcciones, carrito y stock, pedidos, pago simulado, panel de comercio, entregas y operaciones principales del CRM. La guía del backend enumera sus rutas.
 
 Para reiniciar los datos de prueba: borra `domiflow_db_v1` en DevTools → Application → Local Storage.
 

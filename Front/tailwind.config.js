@@ -1,4 +1,3 @@
-import colors from 'tailwindcss/colors';
 import animate from 'tailwindcss-animate';
 
 const v = (name) => `hsl(var(--${name}) / <alpha-value>)`;
@@ -10,7 +9,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: colors.orange,
+        brand: {
+          50: '#fff2ee', 100: '#ffe3da', 200: '#ffc6b6', 300: '#ffa18a',
+          400: '#ff7958', 500: '#ff5a36', 600: '#ed4725', 700: '#c9381b',
+          800: '#a4311b', 900: '#812d1d', 950: '#46140c',
+        },
         border: v('border'), input: v('input'), ring: v('ring'),
         background: v('background'), foreground: v('foreground'),
         primary: { DEFAULT: v('primary'), foreground: v('primary-foreground') },

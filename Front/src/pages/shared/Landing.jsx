@@ -1,61 +1,28 @@
 import { Link } from 'react-router-dom';
-import { Bike, ChefHat, ShieldCheck, ShoppingBag } from 'lucide-react';
-import GradientBarHero from '../../components/layout/GradientBarHero';
-import FooterSection from '../../components/layout/FooterSection';
+import { ArrowRight, Bike, BriefcaseBusiness, MapPin, ShieldCheck, ShoppingBag, Sparkles, Store } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { homeFor } from '../../lib/constants';
 
-const ROLES = [
-  { icon: ShoppingBag, title: 'Clientes', text: 'Elige un comercio, arma tu carrito, paga y mira el estado del pedido en tiempo real.' },
-  { icon: ChefHat, title: 'Comercios', text: 'Recibe pedidos, controla tu inventario y avisa cuando todo está listo para recoger.' },
-  { icon: Bike, title: 'Repartidores', text: 'Activa tu disponibilidad, toma entregas y actualiza el estado en un par de clics.' },
-  { icon: ShieldCheck, title: 'Administradores', text: 'Gestiona usuarios, comercios y supervisa cada entrega de la operación.' },
+const EXPERIENCES = [
+  { icon: ShoppingBag, title: 'Para pedir', text: 'Encuentra comida, mercado y farmacia en un solo lugar.', tag: 'Clientes', href: '/registro', tint: '#fff0e9' },
+  { icon: Store, title: 'Para operar', text: 'Gestiona pedidos, catálogo y entregas desde tu panel.', tag: 'Comercios y repartidores', href: '/login', tint: '#edf6ee' },
+  { icon: ShieldCheck, title: 'Para administrar', text: 'Una vista CRM para usuarios, comercios y operación.', tag: 'Equipo DomiFlow', href: '/login', tint: '#f3efff' },
 ];
 
 export default function Landing() {
   const { user } = useAuth();
-  return (
-    <div className="min-h-screen bg-white">
-      <header className="absolute inset-x-0 top-0 z-10">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 text-white">
-          <span className="flex items-center gap-2 font-display text-xl font-extrabold">
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-600"><Bike className="h-5 w-5" aria-hidden="true" /></span>DomiFlow
-          </span>
-          <nav className="flex items-center gap-2 text-sm font-semibold">
-            {user ? (
-              <Link to={homeFor(user.role)} className="rounded-xl bg-white px-4 py-2 text-slate-900">Ir a mi panel</Link>
-            ) : (
-              <>
-                <Link to="/login" className="rounded-xl px-4 py-2 hover:bg-white/10">Iniciar sesión</Link>
-                <Link to="/registro" className="rounded-xl bg-white px-4 py-2 text-slate-900 hover:bg-slate-100">Crear cuenta</Link>
-              </>
-            )}
-          </nav>
-        </div>
-      </header>
-
-      <GradientBarHero>
-        <h1 className="font-display text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl">Pide hoy, recibe en minutos.</h1>
-        <p className="mt-5 max-w-xl text-lg text-slate-200">Pizzas, sushi, hamburguesas y más de los comercios de tu zona, con seguimiento paso a paso hasta tu puerta.</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link to={user ? homeFor(user.role) : '/registro'} className="rounded-xl bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-500" data-testid="hero-cta">Empezar a pedir</Link>
-          <Link to="/login" className="rounded-xl border border-white/40 px-6 py-3 font-semibold hover:bg-white/10">Ya tengo cuenta</Link>
-        </div>
-      </GradientBarHero>
-
-      <section className="mx-auto max-w-6xl px-4 py-16">
-        <h2 className="text-3xl font-extrabold">Una plataforma, cuatro formas de usarla</h2>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {ROLES.map(({ icon: Icon, title, text }) => (
-            <article key={title} className="rounded-2xl border border-slate-200 p-5">
-              <Icon className="h-7 w-7 text-brand-700" aria-hidden="true" />
-              <h3 className="mt-3 text-lg font-bold">{title}</h3>
-              <p className="mt-1 text-sm text-slate-600">{text}</p>
-            </article>
-          ))}
-        </div>
+  return <div className="min-h-screen bg-[#fffcfa]">
+    <header className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
+      <Link to="/" className="flex items-center gap-2.5 font-display text-xl font-extrabold"><span className="grid size-10 place-items-center rounded-[15px] bg-[#ff5a36] text-white"><Bike size={22} /></span>DomiFlow</Link>
+      <nav className="flex items-center gap-2 text-sm font-bold">{user ? <Link to={homeFor(user.role)} className="rounded-full bg-[#25211f] px-5 py-3 text-white">Ir a mi panel <ArrowRight className="ml-1 inline" size={16} /></Link> : <><Link to="/login" className="rounded-full px-4 py-3 hover:bg-white">Entrar</Link><Link to="/registro" className="rounded-full bg-[#ff5a36] px-5 py-3 text-[#25211f] shadow-sm hover:bg-[#e84827]">Crear cuenta</Link></>}</nav>
+    </header>
+    <main>
+      <section className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-14 pt-8 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:pb-24 lg:pt-14">
+        <div><p className="mb-5 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-[#775d52] shadow-sm"><MapPin size={15} className="text-[#ff5a36]" />Bogotá, cerca de ti</p><h1 className="max-w-2xl text-5xl font-extrabold leading-[1.04] tracking-[-.055em] sm:text-6xl lg:text-7xl">Lo bueno de tu barrio, <span className="text-[#ff5a36]">en camino.</span></h1><p className="mt-6 max-w-xl text-lg leading-relaxed text-[#766b65]">Pide algo rico, completa tu mercado o encuentra lo que necesitas. Una experiencia sencilla, cálida y hecha para Bogotá.</p><div className="mt-8 flex flex-wrap gap-3"><Link to={user ? homeFor(user.role) : '/registro'} className="inline-flex items-center gap-2 rounded-2xl bg-[#ff5a36] px-6 py-4 font-extrabold text-[#25211f] shadow-lg shadow-[#ff5a3625] transition hover:-translate-y-0.5 hover:bg-[#e84827]">{user ? 'Abrir mi panel' : 'Pedir ahora'}<ArrowRight size={18} /></Link><a href="#experiencias" className="rounded-2xl border border-[#e9ded8] bg-white px-6 py-4 font-bold text-[#463b36]">Conoce DomiFlow</a></div><div className="mt-8 flex items-center gap-3 text-sm text-[#897e77]"><span className="flex -space-x-2"><span className="grid size-8 place-items-center rounded-full border-2 border-[#fffcfa] bg-[#fce2d5]">🍕</span><span className="grid size-8 place-items-center rounded-full border-2 border-[#fffcfa] bg-[#e8f5e9]">🥑</span><span className="grid size-8 place-items-center rounded-full border-2 border-[#fffcfa] bg-[#fff1ce]">🧴</span></span>Restaurantes, mercado y farmacia</div></div>
+        <div className="relative mx-auto w-full max-w-[560px]"><div className="absolute -inset-5 rounded-[42px] bg-[#ffe9df] rotate-[-3deg]"/><div className="relative overflow-hidden rounded-[34px] bg-[#f7e9de] p-5 sm:p-7"><div className="flex items-center justify-between rounded-2xl bg-white px-4 py-3"><span className="flex items-center gap-2 text-sm font-bold"><MapPin size={16} className="text-[#ff5a36]"/> Chapinero, Bogotá</span><Sparkles size={18} className="text-[#ff9a48]"/></div><div className="my-5 grid grid-cols-2 gap-4"><div className="grid min-h-52 place-items-center rounded-[26px] bg-[#ffdbca] text-8xl">🍜</div><div className="grid min-h-52 place-items-center rounded-[26px] bg-[#e4f1dc] text-8xl">🥑</div></div><div className="rounded-2xl bg-white p-4"><div className="flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-wider text-[#bd806e]">Tu pedido va</p><p className="mt-1 font-extrabold">De camino a casa</p></div><span className="rounded-full bg-[#e9f8ee] px-3 py-1.5 text-xs font-bold text-[#267243]">En camino</span></div><div className="mt-4 h-2 overflow-hidden rounded-full bg-[#f1e9e4]"><div className="h-full w-3/4 rounded-full bg-[#ff5a36]"/></div><p className="mt-2 text-sm text-[#897e77]">Un paso más y lo tienes contigo ✨</p></div></div></div>
       </section>
-      <FooterSection />
-    </div>
-  );
+      <section id="experiencias" className="bg-white px-5 py-16 sm:px-8 lg:py-20"><div className="mx-auto max-w-7xl"><div className="max-w-2xl"><p className="text-sm font-extrabold uppercase tracking-[.16em] text-[#bd806e]">Hecho para cada momento</p><h2 className="mt-3 text-3xl font-extrabold sm:text-4xl">Una plataforma, experiencias claras.</h2><p className="mt-3 text-[#766b65]">Cada persona encuentra su espacio y su siguiente paso, sin complicaciones.</p></div><div className="mt-8 grid gap-4 md:grid-cols-3">{EXPERIENCES.map(({ icon: Icon, title, text, tag, href, tint }) => <article key={title} className="rounded-[25px] border border-[#efe9e5] p-6 transition hover:-translate-y-1 hover:shadow-xl"><div className="grid size-12 place-items-center rounded-2xl" style={{ background: tint }}><Icon size={23}/></div><p className="mt-5 text-xs font-extrabold uppercase tracking-wide text-[#bd806e]">{tag}</p><h3 className="mt-2 text-xl font-extrabold">{title}</h3><p className="mt-2 min-h-12 text-sm leading-relaxed text-[#766b65]">{text}</p><Link to={href} className="mt-5 inline-flex items-center gap-2 text-sm font-extrabold text-[#c84224]">{title === 'Para pedir' ? 'Empezar a pedir' : 'Acceder'}<ArrowRight size={16}/></Link></article>)}</div><div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-[24px] bg-[#25211f] p-6 text-white sm:px-8"><div className="flex items-center gap-4"><span className="grid size-12 place-items-center rounded-2xl bg-white/10"><BriefcaseBusiness size={22}/></span><div><p className="font-extrabold">¿Te mueves por Bogotá?</p><p className="mt-1 text-sm text-white/70">Comercios y repartidores tienen su propio panel de operación.</p></div></div><Link to="/login" className="rounded-xl bg-white px-5 py-3 text-sm font-extrabold text-[#25211f]">Entrar al panel</Link></div></div></section>
+    </main>
+    <footer className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-7 text-sm text-[#897e77] sm:px-8"><span className="font-extrabold text-[#25211f]">DomiFlow <span className="font-medium text-[#897e77]">· Hecho para el día a día en Bogotá</span></span><span>Los comercios y datos mostrados en la demo son ficticios.</span></footer>
+  </div>;
 }

@@ -31,13 +31,17 @@ function seed() {
     mk('u_com1', 'Laura Pizzera', 'comercio@demo.com', 'COMERCIO'),
     mk('u_com2', 'Kenji Sushi', 'comercio2@demo.com', 'COMERCIO'),
     mk('u_com3', 'Bruno Burger', 'comercio3@demo.com', 'COMERCIO'),
+    mk('u_com4', 'Mercado Demo', 'mercado@demo.com', 'COMERCIO'),
+    mk('u_com5', 'Farmacia Demo', 'farmacia@demo.com', 'COMERCIO'),
     mk('u_rep1', 'Rafa Repartidor', 'repartidor@demo.com', 'REPARTIDOR'),
     mk('u_rep2', 'Rosa Repartidora', 'repartidor2@demo.com', 'REPARTIDOR', { available: false }),
   ];
   const merchants = [
-    { id: 'm1', ownerId: 'u_com1', name: 'Pizzería Don Luigi', category: 'Pizza', emoji: '🍕', description: 'Pizzas al horno de piedra y pasta fresca', open: true, deliveryFee: 3000, rating: 4.7, categories: ['Pizzas', 'Bebidas', 'Postres'] },
-    { id: 'm2', ownerId: 'u_com2', name: 'Sushi Kento', category: 'Sushi', emoji: '🍣', description: 'Rolls y nigiris preparados al momento', open: true, deliveryFee: 4500, rating: 4.5, categories: ['Rolls', 'Bebidas'] },
-    { id: 'm3', ownerId: 'u_com3', name: 'Burger Central', category: 'Hamburguesas', emoji: '🍔', description: 'Hamburguesas artesanales con papas', open: true, deliveryFee: 2500, rating: 4.3, categories: ['Hamburguesas', 'Acompañamientos', 'Bebidas'] },
+    { id: 'm1', ownerId: 'u_com1', name: 'Pizzería Don Luigi', category: 'Pizza', emoji: '🍕', description: 'Pizzas al horno de piedra y pasta fresca', open: true, deliveryFee: 3000, rating: 4.7, area: 'Chapinero', eta: '25–35 min', categories: ['Pizzas', 'Bebidas', 'Postres'] },
+    { id: 'm2', ownerId: 'u_com2', name: 'Sushi Kento', category: 'Sushi', emoji: '🍣', description: 'Rolls y nigiris preparados al momento', open: true, deliveryFee: 4500, rating: 4.5, area: 'Usaquén', eta: '30–40 min', categories: ['Rolls', 'Bebidas'] },
+    { id: 'm3', ownerId: 'u_com3', name: 'Burger Central', category: 'Hamburguesas', emoji: '🍔', description: 'Hamburguesas artesanales con papas', open: true, deliveryFee: 2500, rating: 4.3, area: 'Cedritos', eta: '20–30 min', categories: ['Hamburguesas', 'Acompañamientos', 'Bebidas'] },
+    { id: 'm4', ownerId: 'u_com4', name: 'Mercado del Parque · Demo', category: 'Mercado', emoji: '🥑', description: 'Frutas, despensa y esenciales para el día a día', open: true, deliveryFee: 3500, rating: 4.8, area: 'Chapinero', eta: '20–30 min', categories: ['Frutas', 'Despensa'] },
+    { id: 'm5', ownerId: 'u_com5', name: 'Farmacia Vecina · Demo', category: 'Farmacia', emoji: '🩹', description: 'Cuidado personal y bienestar en casa', open: true, deliveryFee: 3000, rating: 4.6, area: 'Usaquén', eta: '25–35 min', categories: ['Cuidado personal', 'Bienestar'] },
   ];
   const p = (merchantId, name, price, category, emoji, stock) => ({ id: uid('p'), merchantId, name, price, category, emoji, stock, active: true });
   const products = [
@@ -47,6 +51,11 @@ function seed() {
     p('m2', 'Té helado', 7000, 'Bebidas', '🍵', 25),
     p('m3', 'Doble Queso', 27000, 'Hamburguesas', '🍔', 14), p('m3', 'Veggie Burger', 24000, 'Hamburguesas', '🥬', 8),
     p('m3', 'Papas rústicas', 10000, 'Acompañamientos', '🍟', 30), p('m3', 'Gaseosa 400ml', 5000, 'Bebidas', '🥤', 40),
+    { id: 'p_demo_avocado', merchantId: 'm4', name: 'Aguacate hass (unidad)', price: 4500, category: 'Frutas', emoji: '🥑', stock: 18, active: true },
+    { id: 'p_demo_fruit', merchantId: 'm4', name: 'Canasta de frutas', price: 18900, category: 'Frutas', emoji: '🍊', stock: 12, active: true },
+    { id: 'p_demo_milk', merchantId: 'm4', name: 'Leche entera 1L', price: 5200, category: 'Despensa', emoji: '🥛', stock: 22, active: true },
+    { id: 'p_demo_sunscreen', merchantId: 'm5', name: 'Protector solar FPS 50', price: 38900, category: 'Cuidado personal', emoji: '🧴', stock: 8, active: true },
+    { id: 'p_demo_first_aid', merchantId: 'm5', name: 'Kit de primeros auxilios', price: 24900, category: 'Bienestar', emoji: '🩹', stock: 6, active: true },
   ];
   return {
     users, merchants, products, orders: [], deliveries: [], notifications: [],
@@ -59,7 +68,23 @@ function seed() {
 }
 
 function load() {
-  try { const raw = localStorage.getItem(KEY); if (raw) return JSON.parse(raw); } catch { /* ignorar */ }
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      const db = JSON.parse(raw);
+      // Keep existing demo sessions and orders while adding the new market and pharmacy demo catalog.
+      const fresh = seed();
+      for (const item of fresh.users.filter((x) => ['u_com4', 'u_com5'].includes(x.id))) if (!db.users.some((x) => x.id === item.id)) db.users.push(item);
+      for (const item of fresh.merchants.filter((x) => ['m4', 'm5'].includes(x.id))) if (!db.merchants.some((x) => x.id === item.id)) db.merchants.push(item);
+      for (const item of fresh.products.filter((x) => x.id.startsWith('p_demo_'))) if (!db.products.some((x) => x.id === item.id)) db.products.push(item);
+      for (const merchant of db.merchants) {
+        const seeded = fresh.merchants.find((x) => x.id === merchant.id);
+        if (seeded && !merchant.area) Object.assign(merchant, { area: seeded.area, eta: seeded.eta });
+      }
+      localStorage.setItem(KEY, JSON.stringify(db));
+      return db;
+    }
+  } catch { /* ignorar datos de demo dañados y volver a sembrar */ }
   const d = seed();
   localStorage.setItem(KEY, JSON.stringify(d));
   return d;

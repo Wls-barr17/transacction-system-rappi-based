@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
-import { Bell, Bike, LogOut, ShoppingCart, User } from 'lucide-react';
+import { Bell, Bike, LogOut, MapPin, ShoppingCart, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useNotifications } from '../../context/NotificationsContext';
@@ -31,6 +31,7 @@ export default function AppShell() {
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-700 text-white"><Bike className="h-5 w-5" aria-hidden="true" /></span>
             DomiFlow
           </Link>
+          {user.role === 'CLIENTE' && <div className="hidden items-center gap-2 rounded-2xl bg-[#fff3ef] px-3 py-2 text-sm font-bold text-[#57463f] lg:flex" aria-label="Zona de entrega"><MapPin className="h-4 w-4 text-[#ed5331]" /><span><small className="block text-[10px] font-semibold uppercase tracking-wide text-[#897e77]">Entregar en</small>Chapinero, Bogotá</span></div>}
           <nav aria-label="Principal" className="ml-4 hidden flex-1 gap-1 md:flex">
             {links.map(([to, label, end]) => <NavLink key={to} to={to} end={end} className={linkCls}>{label}</NavLink>)}
           </nav>
