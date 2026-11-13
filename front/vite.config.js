@@ -4,7 +4,7 @@ import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
   plugins: [react()],
-  resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
+  resolve: { alias: { '@': fileURLToPath(new URL('.', import.meta.url)) } },
   server: {
     port: 5173,
     // Con VITE_USE_MOCK=false las llamadas a /api van a tu backend (ajusta el puerto).

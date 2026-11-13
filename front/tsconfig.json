@@ -15,7 +15,8 @@
     "allowJs": true,
     "checkJs": false,
     "baseUrl": ".",
-    "paths": { "@/*": ["./src/*"] }
+    "paths": { "@/*": ["./*"] }
   },
-  "include": ["src"]
+  "include": ["./**/*.ts", "./**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
 }

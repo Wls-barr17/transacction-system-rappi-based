@@ -5,7 +5,7 @@ const v = (name) => `hsl(var(--${name}) / <alpha-value>)`;
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ['class'],
-  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
+  content: ['./index.html', './**/*.{js,jsx,ts,tsx}', '!./node_modules/**', '!./dist/**'],
   theme: {
     extend: {
       colors: {
