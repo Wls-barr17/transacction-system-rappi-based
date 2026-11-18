@@ -5,6 +5,7 @@ import { useFetch } from '../../hooks/useFetch';
 import { useCart } from '../../context/CartContext';
 import { EmptyState, ErrorState, Loading } from '../../components/ui/States';
 import { money } from '../../lib/format';
+import SmartImage from '../../components/ui/SmartImage';
 
 const CATEGORIES = [
   { label: 'Todo', icon: '✨', key: 'Todas' },
@@ -70,7 +71,7 @@ export default function Catalog() {
         {loading ? <Loading label="Buscando lugares cerca de ti…" /> : error ? <ErrorState error={error} onRetry={reload} /> : list.length === 0 ? <EmptyState title={onlyFavorites ? 'Aún no guardas favoritos' : 'No encontramos opciones'} text={onlyFavorites ? 'Toca el corazón de un comercio para guardarlo aquí.' : 'Prueba con otra búsqueda, zona o categoría.'} /> : (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((m) => <li key={m.id} className="market-card" data-testid="merchant-card">
-              <div className="relative"><div className="merchant-cover" aria-hidden="true">{m.emoji}</div><button type="button" className="favorite-toggle absolute right-3 top-3" aria-label={`${favorites.includes(m.id) ? 'Quitar de' : 'Agregar a'} favoritos: ${m.name}`} aria-pressed={favorites.includes(m.id)} onClick={() => toggleFavorite(m.id)}><Heart size={18} fill={favorites.includes(m.id) ? 'currentColor' : 'none'} /></button>{!m.open && <span className="absolute bottom-3 left-3 rounded-full bg-[#25211f]/85 px-3 py-1 text-xs font-bold text-white">Cerrado</span>}</div>
+              <div className="relative"><SmartImage src={m.imageUrl} alt={`Foto de ${m.name}`} fallback={m.emoji} className="merchant-cover" /><button type="button" className="favorite-toggle absolute right-3 top-3" aria-label={`${favorites.includes(m.id) ? 'Quitar de' : 'Agregar a'} favoritos: ${m.name}`} aria-pressed={favorites.includes(m.id)} onClick={() => toggleFavorite(m.id)}><Heart size={18} fill={favorites.includes(m.id) ? 'currentColor' : 'none'} /></button>{!m.open && <span className="absolute bottom-3 left-3 rounded-full bg-[#25211f]/85 px-3 py-1 text-xs font-bold text-white">Cerrado</span>}</div>
               <div className="px-1 pb-1 pt-4">
                 <div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wide text-[#bd806e]">{categoryOf(m)}{m.name.includes('Demo') ? ' · ficticio' : ''}</p><h3 className="mt-1 text-lg font-extrabold leading-snug">{m.name.replace(' · Demo', '')}</h3></div><span className="flex items-center gap-1 rounded-lg bg-[#fff8e9] px-2 py-1 text-sm font-extrabold"><Star size={14} fill="#e9a93a" color="#e9a93a" />{m.rating}</span></div>
                 <p className="mt-1 line-clamp-2 min-h-10 text-sm text-[#756a64]">{m.description}</p>

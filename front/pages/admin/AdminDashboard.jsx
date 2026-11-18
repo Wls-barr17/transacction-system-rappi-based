@@ -11,12 +11,13 @@ import { EmptyState, ErrorState, Loading, PageHeader } from '../../components/ui
 export default function AdminDashboard() {
   const stats = useFetch('/admin/stats', { interval: 10000 });
   const orders = useFetch('/orders', { interval: 10000 });
+  const payments = useFetch('/admin/payments', { interval: 15000 });
   const [day, setDay] = useState(null);
   const [status, setStatus] = useState('');
   const marked = useMemo(() => [...new Set((orders.data || []).map((o) => dayKey(o.createdAt)))], [orders.data]);
 
-  if (stats.loading || orders.loading) return <Loading />;
-  if (stats.error || orders.error) return <ErrorState error={stats.error || orders.error} onRetry={() => { stats.reload(); orders.reload(); }} />;
+  if (stats.loading || orders.loading || payments.loading) return <Loading />;
+  if (stats.error || orders.error || payments.error) return <ErrorState error={stats.error || orders.error || payments.error} onRetry={() => { stats.reload(); orders.reload(); payments.reload(); }} />;
 
   const s = stats.data;
   const cards = [[Users, 'Usuarios', s.users], [Store, 'Comercios', s.merchants], [Receipt, 'Pedidos', s.orders], [Bike, 'Entregas activas', s.activeDeliveries], [Wallet, 'Ingresos entregados', money(s.revenue)]];
@@ -25,7 +26,7 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8" data-testid="admin-dashboard">
       <PageHeader title="Panel general" subtitle="Estado global y historial de operaciones." />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="admin-kpis grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {cards.map(([Icon, label, value]) => (
           <div key={label} className="rounded-2xl border border-slate-200 bg-white p-4" data-testid="stat-card">
             <Icon className="h-5 w-5 text-brand-700" aria-hidden="true" />
@@ -64,6 +65,11 @@ export default function AdminDashboard() {
             </table>
           </div>
         )}
+      </section>
+
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white" aria-labelledby="payment-ledger-heading">
+        <div className="border-b border-slate-200 p-4"><h2 id="payment-ledger-heading" className="text-xl font-bold">Registro de pagos simulados</h2><p className="text-sm text-slate-600">Últimos 100 intentos guardados por el backend, incluidos los rechazados y reintentos.</p></div>
+        {payments.data.length === 0 ? <p className="p-5 text-sm text-slate-600">Aún no hay intentos. Entra como cliente, crea un pedido y usa el simulador de pago.</p> : <div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="bg-slate-50"><tr><th className="p-3">Pedido / intento</th><th className="p-3">Cliente</th><th className="p-3">Comercio</th><th className="p-3">Método</th><th className="p-3">Monto</th><th className="p-3">Estado</th><th className="p-3">Referencia</th><th className="p-3">Fecha</th></tr></thead><tbody>{payments.data.map((payment) => <tr key={payment.id} className="border-t border-slate-100"><td className="p-3">#{payment.orderCode} · {payment.attemptNumber}</td><td className="p-3">{payment.customerName}</td><td className="p-3">{payment.merchantName}</td><td className="p-3">{payment.method}</td><td className="p-3">{money(payment.amount)}</td><td className="p-3"><StatusBadge status={payment.status} /></td><td className="p-3 font-mono text-xs">{payment.transactionReference}</td><td className="p-3">{fmtDate(payment.createdAt)}</td></tr>)}</tbody></table></div>}
       </section>
     </div>
   );

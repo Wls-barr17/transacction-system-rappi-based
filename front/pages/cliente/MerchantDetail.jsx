@@ -6,6 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import Button from '../../components/ui/AppButton';
 import { ErrorState, Loading } from '../../components/ui/States';
 import { money } from '../../lib/format';
+import SmartImage from '../../components/ui/SmartImage';
 
 export default function MerchantDetail() {
   const { id } = useParams();
@@ -23,7 +24,7 @@ export default function MerchantDetail() {
     <div data-testid="merchant-detail" className="pb-24">
       <Link to="/cliente" className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-800 underline"><ArrowLeft className="h-4 w-4" aria-hidden="true" />Volver a comercios</Link>
       <div className="flex items-center gap-4">
-        <span className="text-6xl" aria-hidden="true">{m.emoji}</span>
+        <SmartImage src={m.imageUrl} alt={`Foto de ${m.name}`} fallback={m.emoji} className="h-20 w-20 rounded-2xl object-cover text-5xl" />
         <div>
           <h1 className="text-3xl font-extrabold">{m.name}</h1>
           <p className="text-slate-600">{m.description} · Envío {money(m.deliveryFee)}</p>
@@ -38,7 +39,7 @@ export default function MerchantDetail() {
           <ul className="grid gap-3 sm:grid-cols-2">
             {products.map((p) => (
               <li key={p.id} data-testid="product-card" className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4">
-                <span className="text-4xl" aria-hidden="true">{p.emoji}</span>
+                <SmartImage src={p.imageUrl} alt={p.name} fallback={p.emoji} className="h-20 w-20 shrink-0 rounded-xl object-cover text-4xl" />
                 <div className="flex-1">
                   <p className="font-bold">{p.name}</p>
                   <p className="text-sm text-slate-700">{money(p.price)}</p>

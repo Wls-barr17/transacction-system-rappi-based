@@ -42,7 +42,7 @@ export default function Checkout() {
   const formatErr = code && !COUPON_RE.test(code) ? 'Usa de 4 a 15 letras o números, sin espacios' : '';
   const applyCoupon = async () => {
     try {
-      const r = await api.get(`/coupons/validate?code=${code}&subtotal=${subtotal}`);
+      const r = await api.get(`/coupons/validate?code=${encodeURIComponent(code)}&subtotal=${subtotal}&merchantId=${cart.merchant.id}`);
       if (r.valid) { setCoupon({ code: r.code, type: r.type, value: r.value, min: r.min }); setCouponMsg({ ok: true, text: r.message }); }
       else { setCoupon(null); setCouponMsg({ ok: false, text: r.message }); }
     } catch (e) { setCouponMsg({ ok: false, text: e.message }); }

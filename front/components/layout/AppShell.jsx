@@ -16,6 +16,13 @@ const NAV = {
 const linkCls = ({ isActive }) =>
   `whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold ${isActive ? 'bg-brand-100 text-brand-900' : 'text-slate-700 hover:bg-slate-100'}`;
 
+const ROLE_LABELS = {
+  CLIENTE: 'Tu DomiFlow',
+  COMERCIO: 'Centro del comercio',
+  REPARTIDOR: 'Panel de repartidor',
+  ADMINISTRADOR: 'CRM · Administración',
+};
+
 export default function AppShell() {
   const { user, logout } = useAuth();
   const { unread } = useNotifications();
@@ -59,7 +66,13 @@ export default function AppShell() {
           <NavLink to="/perfil" className={linkCls}>Perfil</NavLink>
         </nav>
       </header>
-      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-8"><Outlet /></main>
+      <div className={`role-strip role-strip-${user.role.toLowerCase()}`} aria-label={ROLE_LABELS[user.role]}>
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
+          <span>{ROLE_LABELS[user.role]}</span>
+          <span className="hidden sm:inline">{user.role === 'CLIENTE' ? 'Bogotá, Colombia' : user.name}</span>
+        </div>
+      </div>
+      <main id="main" className={`app-main app-main-${user.role.toLowerCase()} mx-auto w-full max-w-6xl flex-1 px-4 py-8`}><Outlet /></main>
       <AppFooter />
     </div>
   );

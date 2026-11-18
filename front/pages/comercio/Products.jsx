@@ -8,10 +8,11 @@ import Button from '../../components/ui/AppButton';
 import Input, { selectCls } from '../../components/ui/Input';
 import Modal from '../../components/ui/Modal';
 import { EmptyState, ErrorState, Loading, PageHeader } from '../../components/ui/States';
+import SmartImage from '../../components/ui/SmartImage';
 
 function ProductForm({ initial, categories, onSaved, onCancel }) {
   const toast = useToast();
-  const [f, setF] = useState(initial || { name: '', price: '', category: categories[0] || '', emoji: '🍽️', stock: 10, active: true });
+  const [f, setF] = useState(initial || { name: '', price: '', category: categories[0] || '', emoji: '🍽️', imageUrl: '', stock: 10, active: true });
   const [touched, setTouched] = useState(false);
   const set = (k) => (e) => setF((s) => ({ ...s, [k]: e.target.value }));
   const errs = {
@@ -46,6 +47,8 @@ function ProductForm({ initial, categories, onSaved, onCancel }) {
         </div>
         <Input label="Emoji" value={f.emoji} onChange={set('emoji')} maxLength={4} />
       </div>
+      <Input label="URL pública de foto (HTTPS)" type="url" value={f.imageUrl || ''} onChange={set('imageUrl')} placeholder="https://…" hint="Pega un enlace directo a una imagen. Déjalo vacío para usar el emoji." />
+      {f.imageUrl && <SmartImage src={f.imageUrl} alt={`Vista previa de ${f.name || 'producto'}`} fallback={f.emoji} className="h-36 w-full rounded-xl object-cover text-5xl" />}
       <label className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" checked={f.active} onChange={(e) => setF((s) => ({ ...s, active: e.target.checked }))} />Visible para los clientes</label>
       <div className="flex justify-end gap-2 pt-2"><Button variant="secondary" onClick={onCancel}>Cancelar</Button><Button onClick={save} data-testid="product-save">Guardar producto</Button></div>
     </div>
@@ -99,7 +102,7 @@ export default function MerchantProducts() {
             <tbody>
               {products.data.map((p) => (
                 <tr key={p.id} className="border-t border-slate-100" data-testid="product-row">
-                  <td className="p-3 font-semibold"><span aria-hidden="true">{p.emoji} </span>{p.name}</td>
+                  <td className="p-3 font-semibold"><span className="flex items-center gap-2"><SmartImage src={p.imageUrl} alt="" fallback={p.emoji} className="h-11 w-11 rounded-lg object-cover text-xl" />{p.name}</span></td>
                   <td className="p-3">{p.category}</td>
                   <td className="p-3">{money(p.price)}</td>
                   <td className="p-3">{p.stock}</td>

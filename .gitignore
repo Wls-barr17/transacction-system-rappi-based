@@ -1,8 +1,67 @@
-node_modules/
-dist/
-target/
-coverage/
-*.tsbuildinfo
+# -----------------------------------------------------------------------------
+# Secrets and local configuration
+# Keep example templates versioned; never commit real credentials.
+# -----------------------------------------------------------------------------
 .env
 .env.*
 !.env.example
+!.env.*.example
+!.env.example.*
+
+# -----------------------------------------------------------------------------
+# Frontend (Node, Vite, TypeScript, tests and local tooling)
+# -----------------------------------------------------------------------------
+**/node_modules/
+**/dist/
+**/coverage/
+**/.vite/
+**/.vitest/
+**/.next/
+**/.cache/
+**/.eslintcache
+**/*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# -----------------------------------------------------------------------------
+# Backend (Maven / Java)
+# -----------------------------------------------------------------------------
+**/target/
+**/build/
+**/*.class
+hs_err_pid*.log
+replay_pid*.log
+
+# -----------------------------------------------------------------------------
+# Local databases and exported runtime data
+# Keep SQL migrations, schema files and seed scripts tracked.
+# -----------------------------------------------------------------------------
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+*.dump
+*.backup
+
+# -----------------------------------------------------------------------------
+# IDEs, operating systems and temporary files
+# -----------------------------------------------------------------------------
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+*.iml
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+*.tmp
+*.temp
+
+# Supabase local development state; version the supabase-import SQL assets.
+supabase/.temp/
+supabase/.branches/

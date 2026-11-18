@@ -7,8 +7,9 @@ import { EMAIL_RE, money } from '../../lib/format';
 import Button from '../../components/ui/AppButton';
 import Input from '../../components/ui/Input';
 import { ErrorState, Loading, PageHeader } from '../../components/ui/States';
+import SmartImage from '../../components/ui/SmartImage';
 
-const EMPTY = { name: '', category: '', emoji: '🍽️', description: '', deliveryFee: 3000, ownerName: '', ownerEmail: '', ownerPassword: '' };
+const EMPTY = { name: '', category: '', emoji: '🍽️', imageUrl: '', description: '', deliveryFee: 3000, ownerName: '', ownerEmail: '', ownerPassword: '' };
 
 export default function AdminMerchants() {
   const toast = useToast();
@@ -41,6 +42,7 @@ export default function AdminMerchants() {
           <Input label="Costo de envío (COP)" type="number" min="0" value={f.deliveryFee} onChange={set('deliveryFee')} />
           <Input label="Descripción" value={f.description} onChange={set('description')} className="md:col-span-2" />
           <Input label="Emoji" value={f.emoji} onChange={set('emoji')} maxLength={4} />
+          <Input label="URL pública de foto (HTTPS)" type="url" value={f.imageUrl} onChange={set('imageUrl')} placeholder="https://…" className="md:col-span-2" />
           <Input label="Propietario" value={f.ownerName} onChange={set('ownerName')} error={touched && errs.ownerName} data-testid="m-owner" />
           <Input label="Correo del propietario" type="email" value={f.ownerEmail} onChange={set('ownerEmail')} error={touched && errs.ownerEmail} data-testid="m-owner-email" />
           <Input label="Contraseña inicial" type="password" value={f.ownerPassword} onChange={set('ownerPassword')} error={touched && errs.ownerPassword} data-testid="m-owner-password" />
@@ -51,7 +53,7 @@ export default function AdminMerchants() {
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {data.map((m) => (
           <li key={m.id} className="rounded-2xl border border-slate-200 bg-white p-4" data-testid="merchant-row">
-            <p className="text-lg font-bold"><span aria-hidden="true">{m.emoji} </span>{m.name}</p>
+            <div className="flex items-center gap-3"><SmartImage src={m.imageUrl} alt={`Foto de ${m.name}`} fallback={m.emoji} className="h-14 w-14 rounded-xl object-cover text-2xl" /><p className="text-lg font-bold">{m.name}</p></div>
             <p className="text-sm text-slate-700">{m.category} · Envío {money(m.deliveryFee)}</p>
             <p className="mt-2 text-sm">Propietario: {m.ownerName}<br /><span className="text-slate-600">{m.ownerEmail}</span></p>
             <p className={`mt-2 inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${m.open ? 'bg-green-100 text-green-900' : 'bg-slate-200 text-slate-800'}`}>{m.open ? 'Recibiendo pedidos' : 'No recibe pedidos'}</p>

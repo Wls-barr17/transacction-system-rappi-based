@@ -7,7 +7,15 @@ import { useAuth } from '../../context/AuthContext';
 import { homeFor } from '../../lib/constants';
 import { EMAIL_RE } from '../../lib/utils';
 
-const DEMOS = [['Cliente', 'cliente@demo.com'], ['Comercio', 'comercio@demo.com'], ['Repartidor', 'repartidor@demo.com'], ['Admin', 'admin@demo.com']];
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
+const SEEDED_DEMOS = [
+  ['Cliente', 'cliente.demo@domiflow.test'],
+  ['Administrador / CRM', 'admin.demo@domiflow.test'],
+  ['Domiciliario', 'domiciliario.demo@domiflow.test'],
+  ['Comercio R01', 'comercio.r01@domiflow.test'],
+];
+const MOCK_DEMOS = [['Cliente', 'cliente@demo.com'], ['Comercio', 'comercio@demo.com'], ['Domiciliario', 'repartidor@demo.com'], ['Admin', 'admin@demo.com']];
+const DEMO_PASSWORD = USE_MOCK ? 'Demo1234' : 'DomiDemo2026!';
 
 // Inspirado en "sign-in" de 21st.dev
 export default function SignIn() {
@@ -71,10 +79,11 @@ export default function SignIn() {
           <p className="mt-4 text-center text-sm text-slate-700">¿No tienes cuenta? <Link to="/registro" className="font-bold text-brand-700 underline">Regístrate</Link></p>
 
           <div className="mt-8 rounded-xl border border-dashed border-slate-300 p-4">
-            <p className="text-sm font-semibold">Cuentas de prueba (contraseña: Demo1234)</p>
+            <p className="text-sm font-semibold">Acceso de demostración {USE_MOCK ? '(modo local)' : '(requiere cargar el seed en Supabase)'}</p>
+            <p className="mt-1 text-xs text-slate-600">Contraseña: <span className="font-semibold">{DEMO_PASSWORD}</span></p>
             <div className="mt-2 flex flex-wrap gap-2">
-              {DEMOS.map(([label, mail]) => (
-                <button key={mail} type="button" onClick={() => { setEmail(mail); setPassword('Demo1234'); }}
+              {(USE_MOCK ? MOCK_DEMOS : SEEDED_DEMOS).map(([label, mail]) => (
+                <button key={mail} type="button" onClick={() => { setEmail(mail); setPassword(DEMO_PASSWORD); }}
                   className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold hover:bg-slate-50">{label}</button>
               ))}
             </div>

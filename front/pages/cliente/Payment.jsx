@@ -47,6 +47,12 @@ export default function Payment() {
           <p className="text-3xl font-extrabold" data-testid="payment-total">{money(order.total)}</p>
         </div>
         <p className="mt-2 flex items-center gap-2 text-sm">Estado del pago: <StatusBadge status={status} /></p>
+        <p className="mt-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-700">Modo demostración: no se cobra dinero ni se guardan números de tarjeta. Cada respuesta simulada queda registrada en el historial del pedido y en el CRM.</p>
+
+        {(order.paymentAttempts || []).length > 0 && <section className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4" aria-labelledby="payment-history-heading">
+          <h2 id="payment-history-heading" className="font-bold">Intentos registrados</h2>
+          <ul className="mt-2 space-y-2 text-sm">{order.paymentAttempts.map((attempt) => <li key={attempt.attemptNumber} className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 pt-2"><span>Intento {attempt.attemptNumber} · {attempt.method} · {money(attempt.amount)}</span><span className="font-semibold">{attempt.status} · {attempt.transactionReference}</span></li>)}</ul>
+        </section>}
 
         {res && (
           <div role="status" data-testid="payment-result" className={`mt-5 flex items-start gap-3 rounded-xl border p-4 ${last === 'RECHAZADO' || (!last && status === 'RECHAZADO') ? 'border-red-300 bg-red-50 text-red-900' : (last || status) === 'APROBADO' ? 'border-green-300 bg-green-50 text-green-900' : 'border-amber-300 bg-amber-50 text-amber-900'}`}>
