@@ -2,7 +2,7 @@
 
 DomiFlow reúne una experiencia de compra para clientes, operación para comercios y repartidores y un CRM para administración. La interfaz usa una identidad cálida y propia, con referencias a Chapinero, Usaquén y Cedritos. Los comercios del modo demostración son ficticios.
 
-## Arquitectura.
+## Arquitectura..
 
 
 ```text
