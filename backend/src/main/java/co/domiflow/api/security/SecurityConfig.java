@@ -23,7 +23,7 @@ public class SecurityConfig {
     return http.csrf(csrf -> csrf.disable()).cors(c -> c.configurationSource(cors))
       .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       .authorizeHttpRequests(a -> a.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/categories", "/api/merchants", "/api/merchants/**", "/actuator/health").permitAll()
+        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/categories", "/api/merchants", "/api/merchants/**", "/api/webhooks/wompi", "/actuator/health").permitAll()
         .anyRequest().authenticated())
       .addFilterBefore(jwt, UsernamePasswordAuthenticationFilter.class).httpBasic(b -> b.disable()).formLogin(f -> f.disable()).build();
   }

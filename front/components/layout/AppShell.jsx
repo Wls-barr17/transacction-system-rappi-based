@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { Bell, Bike, LogOut, MapPin, ShoppingCart, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useNotifications } from '../../context/NotificationsContext';
+import { useFetch } from '../../hooks/useFetch';
+import { api } from '../../lib/api';
 import { homeFor } from '../../lib/constants';
 import AppFooter from './AppFooter';
 
@@ -27,7 +30,25 @@ export default function AppShell() {
   const { user, logout } = useAuth();
   const { unread } = useNotifications();
   const { count, clear } = useCart();
+  const [addressMenuOpen, setAddressMenuOpen] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
+  const addresses = useFetch('/addresses', { enabled: user.role === 'CLIENTE' });
   const links = NAV[user.role] || [];
+  const currentAddress = addresses.data?.find((address) => address.isDefault) || addresses.data?.[0];
+
+  const selectAddress = async (address) => {
+    if (address.isDefault) { setAddressMenuOpen(false); return; }
+    setSavingAddress(true);
+    try {
+      await api.patch(`/addresses/${address.id}/default`);
+      await addresses.reload();
+      setAddressMenuOpen(false);
+    } catch {
+      await addresses.reload();
+    } finally {
+      setSavingAddress(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -38,7 +59,21 @@ export default function AppShell() {
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-700 text-white"><Bike className="h-5 w-5" aria-hidden="true" /></span>
             DomiFlow
           </Link>
-          {user.role === 'CLIENTE' && <div className="hidden items-center gap-2 rounded-2xl bg-[#fff3ef] px-3 py-2 text-sm font-bold text-[#57463f] lg:flex" aria-label="Zona de entrega"><MapPin className="h-4 w-4 text-[#ed5331]" /><span><small className="block text-[10px] font-semibold uppercase tracking-wide text-[#897e77]">Entregar en</small>Chapinero, Bogotá</span></div>}
+          {user.role === 'CLIENTE' && <div className="relative min-w-0">
+            <button type="button" aria-haspopup="listbox" aria-expanded={addressMenuOpen} onClick={() => setAddressMenuOpen((open) => !open)} className="flex max-w-40 items-center gap-2 rounded-2xl bg-[#fff3ef] px-2 py-2 text-left text-xs font-bold text-[#57463f] hover:bg-[#ffe9e1] sm:max-w-56 sm:px-3 sm:text-sm lg:max-w-64" data-testid="delivery-address-selector">
+              <MapPin className="h-4 w-4 shrink-0 text-[#ed5331]" />
+              <span className="min-w-0"><small className="block text-[10px] font-semibold uppercase tracking-wide text-[#897e77]">Entregar en · cambiar</small><span className="block truncate">{currentAddress ? `${currentAddress.street}${currentAddress.neighborhood ? `, ${currentAddress.neighborhood}` : ''}` : 'Elige una dirección'}</span></span>
+            </button>
+            {addressMenuOpen && <div className="absolute left-0 top-full z-50 mt-2 w-80 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl" role="listbox" aria-label="Direcciones de entrega">
+              {addresses.loading && <p className="px-3 py-2 text-sm text-slate-600">Cargando direcciones…</p>}
+              {!addresses.loading && addresses.data?.length > 0 && addresses.data.map((address) => <button type="button" role="option" aria-selected={Boolean(address.isDefault)} key={address.id} disabled={savingAddress} onClick={() => selectAddress(address)} className="block w-full rounded-xl px-3 py-2 text-left hover:bg-orange-50 disabled:opacity-60">
+                <span className="block text-sm font-bold text-slate-900">{address.label}{address.isDefault ? ' · Actual' : ''}</span>
+                <span className="mt-0.5 block text-xs text-slate-600">{address.street}{address.neighborhood ? `, ${address.neighborhood}` : ''}, {address.city}</span>
+              </button>)}
+              {!addresses.loading && !addresses.data?.length && <p className="px-3 py-2 text-sm text-slate-600">Aún no tienes direcciones guardadas.</p>}
+              <Link to="/perfil" onClick={() => setAddressMenuOpen(false)} className="mt-1 block rounded-xl bg-slate-50 px-3 py-2 text-sm font-bold text-brand-800 hover:bg-orange-50">+ Agregar o administrar direcciones</Link>
+            </div>}
+          </div>}
           <nav aria-label="Principal" className="ml-4 hidden flex-1 gap-1 md:flex">
             {links.map(([to, label, end]) => <NavLink key={to} to={to} end={end} className={linkCls}>{label}</NavLink>)}
           </nav>

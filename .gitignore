@@ -1,16 +1,19 @@
-# -----------------------------------------------------------------------------
-# Secrets and local configuration
-# Keep example templates versioned; never commit real credentials.
-# -----------------------------------------------------------------------------
-.env
-.env.*
-!.env.example
-!.env.*.example
-!.env.example.*
+# Local secrets and machine-specific environment files.
+# Keep the example templates tracked.
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.*.example
+!**/.env.example.*
 
-# -----------------------------------------------------------------------------
-# Frontend (Node, Vite, TypeScript, tests and local tooling)
-# -----------------------------------------------------------------------------
+# Java / Maven / Spring Boot output
+**/target/
+**/build/
+**/*.class
+hs_err_pid*.log
+replay_pid*.log
+
+# Node / Vite / frontend output
 **/node_modules/
 **/dist/
 **/coverage/
@@ -25,19 +28,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# -----------------------------------------------------------------------------
-# Backend (Maven / Java)
-# -----------------------------------------------------------------------------
-**/target/
-**/build/
-**/*.class
-hs_err_pid*.log
-replay_pid*.log
-
-# -----------------------------------------------------------------------------
-# Local databases and exported runtime data
-# Keep SQL migrations, schema files and seed scripts tracked.
-# -----------------------------------------------------------------------------
+# Local databases and database exports; keep SQL schemas, migrations and seeds.
 *.db
 *.db-journal
 *.sqlite
@@ -45,9 +36,7 @@ replay_pid*.log
 *.dump
 *.backup
 
-# -----------------------------------------------------------------------------
-# IDEs, operating systems and temporary files
-# -----------------------------------------------------------------------------
+# IDE, OS and temporary files
 .idea/
 .vscode/*
 !.vscode/extensions.json
@@ -62,6 +51,6 @@ Desktop.ini
 *.tmp
 *.temp
 
-# Supabase local development state; version the supabase-import SQL assets.
+# Local Supabase CLI state; SQL assets under supabase-import remain trackable.
 supabase/.temp/
 supabase/.branches/

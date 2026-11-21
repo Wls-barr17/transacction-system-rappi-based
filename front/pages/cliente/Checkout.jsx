@@ -5,10 +5,10 @@ import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import { useFetch } from '../../hooks/useFetch';
 import { api } from '../../lib/api';
-import { PAYMENT_METHODS } from '../../lib/constants';
 import { COUPON_RE, money } from '../../lib/format';
 import Button from '../../components/ui/AppButton';
 import Input from '../../components/ui/Input';
+import DeliveryAddressMap from '../../components/ui/DeliveryAddressMap';
 import { EmptyState, Loading, PageHeader } from '../../components/ui/States';
 
 export default function Checkout() {
@@ -17,7 +17,6 @@ export default function Checkout() {
   const toast = useToast();
   const addrs = useFetch('/addresses');
   const [addressId, setAddressId] = useState(null);
-  const [method, setMethod] = useState('TARJETA');
   const [outOfStock, setOut] = useState([]);
   const [code, setCode] = useState(cart.coupon?.code || '');
   const [couponMsg, setCouponMsg] = useState(cart.coupon ? { ok: true, text: 'Cupón aplicado' } : null);
@@ -50,11 +49,12 @@ export default function Checkout() {
   const removeCoupon = () => { setCoupon(null); setCode(''); setCouponMsg(null); };
 
   const outIds = new Map(outOfStock.map((o) => [o.productId, o]));
+  const selectedAddress = addrs.data.find((address) => address.id === addressId);
   const canConfirm = addressId && outOfStock.length === 0;
 
   const confirm = async () => {
     try {
-      const order = await api.post('/orders', { merchantId: cart.merchant.id, items: payload, addressId, coupon: cart.coupon?.code || null, paymentMethod: method });
+      const order = await api.post('/orders', { merchantId: cart.merchant.id, items: payload, addressId, coupon: cart.coupon?.code || null, paymentMethod: 'TARJETA' });
       clear();
       nav(`/cliente/pago/${order.id}`);
     } catch (e) {
@@ -107,9 +107,10 @@ export default function Checkout() {
                 {addrs.data.map((a) => (
                   <label key={a.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 ${addressId === a.id ? 'border-brand-700 bg-brand-50' : 'border-slate-200'}`}>
                     <input type="radio" name="address" checked={addressId === a.id} onChange={() => setAddressId(a.id)} className="mt-1" data-testid={`address-${a.id}`} />
-                    <span><span className="flex items-center gap-1 font-bold"><MapPin className="h-4 w-4" aria-hidden="true" />{a.label}</span><span className="text-sm">{a.street}, {a.city}</span></span>
+                    <span><span className="flex items-center gap-1 font-bold"><MapPin className="h-4 w-4" aria-hidden="true" />{a.label}</span><span className="text-sm">{a.street}{a.neighborhood ? `, ${a.neighborhood}` : ''}, {a.city}</span></span>
                   </label>
                 ))}
+                {selectedAddress && <DeliveryAddressMap latitude={selectedAddress.latitude} longitude={selectedAddress.longitude} address={`${selectedAddress.street}, ${selectedAddress.neighborhood ? `${selectedAddress.neighborhood}, ` : ''}${selectedAddress.city}`} />}
               </div>
             )}
           </fieldset>
@@ -130,16 +131,10 @@ export default function Checkout() {
             )}
           </section>
 
-          <fieldset className="rounded-2xl border border-slate-200 bg-white p-5">
-            <legend className="px-1 text-lg font-bold">Método de pago</legend>
-            <div className="grid gap-2 sm:grid-cols-3">
-              {PAYMENT_METHODS.map((m) => (
-                <label key={m.id} className={`flex cursor-pointer items-center gap-2 rounded-xl border p-3 text-sm font-semibold ${method === m.id ? 'border-brand-700 bg-brand-50' : 'border-slate-200'}`}>
-                  <input type="radio" name="method" checked={method === m.id} onChange={() => setMethod(m.id)} data-testid={`method-${m.id}`} />{m.label}
-                </label>
-              ))}
-            </div>
-          </fieldset>
+          <section className="rounded-2xl border border-slate-200 bg-white p-5" aria-labelledby="wompi-payment-heading">
+            <h2 id="wompi-payment-heading" className="text-lg font-bold">Pago seguro con Wompi</h2>
+            <p className="mt-1 text-sm text-slate-600">En el checkout Sandbox eliges uno de los métodos habilitados para pruebas, como tarjeta o PSE.</p>
+          </section>
         </div>
 
         <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-5" aria-label="Resumen del pago">

@@ -3,7 +3,7 @@ let mapsPromise;
 
 export const isGoogleMapsConfigured = Boolean(API_KEY);
 
-export function loadGooglePlaces() {
+export function loadGoogleMaps() {
   if (!API_KEY) return Promise.reject(new Error('Google Maps no está configurado.'));
   if (window.google?.maps?.importLibrary) return Promise.resolve(window.google);
   if (mapsPromise) return mapsPromise;

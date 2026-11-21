@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AddressService {
-  private static final String ADDRESS_COLUMNS = "id,user_id as \"userId\",label,street,city,notes,latitude,longitude,is_default as \"isDefault\"";
+  private static final String ADDRESS_COLUMNS = "id,user_id as \"userId\",label,street,neighborhood,city,notes,latitude,longitude,is_default as \"isDefault\"";
   private final JdbcTemplate db;
   public AddressService(JdbcTemplate db) { this.db = db; }
 
@@ -26,8 +26,8 @@ public class AddressService {
     validateCoordinates(input);
     UUID id = UUID.randomUUID();
     boolean isFirst = db.queryForObject("select count(*) from addresses where user_id=?", Integer.class, userId) == 0;
-    db.update("insert into addresses(id,user_id,label,street,city,notes,latitude,longitude,is_default) values(?,?,?,?,?,?,?,?,?)",
-      id, userId, input.get("label"), input.get("street"), input.getOrDefault("city", "Bogotá"),
+    db.update("insert into addresses(id,user_id,label,street,neighborhood,city,notes,latitude,longitude,is_default) values(?,?,?,?,?,?,?,?,?,?)",
+      id, userId, input.get("label"), input.get("street"), input.getOrDefault("neighborhood", ""), input.getOrDefault("city", "Bogotá"),
       input.getOrDefault("notes", ""), input.get("latitude"), input.get("longitude"), isFirst);
     return findOwned(userId, id);
   }
@@ -36,8 +36,8 @@ public class AddressService {
   public Map<String, Object> update(UUID userId, UUID addressId, Map<String, Object> input) {
     validateAddress(input);
     validateCoordinates(input);
-    int count = db.update("update addresses set label=?,street=?,city=?,notes=?,latitude=?,longitude=? where id=? and user_id=?",
-      input.get("label"), input.get("street"), input.getOrDefault("city", "Bogotá"), input.getOrDefault("notes", ""),
+    int count = db.update("update addresses set label=?,street=?,neighborhood=?,city=?,notes=?,latitude=?,longitude=? where id=? and user_id=?",
+      input.get("label"), input.get("street"), input.getOrDefault("neighborhood", ""), input.getOrDefault("city", "Bogotá"), input.getOrDefault("notes", ""),
       input.get("latitude"), input.get("longitude"), addressId, userId);
     if (count == 0) throw new ApiException(HttpStatus.NOT_FOUND, "Dirección no encontrada");
     return findOwned(userId, addressId);

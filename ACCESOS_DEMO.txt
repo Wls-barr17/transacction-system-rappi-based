@@ -1,0 +1,64 @@
+DOMIFLOW — CUENTAS DE DEMOSTRACIÓN
+=================================
+
+Estas credenciales son SOLO para desarrollo y demostración. No son cuentas
+administrativas reales ni llaves API. No uses estas claves en producción.
+
+1) APLICACIÓN CON BACKEND Y SUPABASE
+-----------------------------------
+Las siguientes cuentas funcionan si ejecutaste en Supabase el seed:
+supabase-import/02_media_and_demo_seed.sql
+
+Contraseña común: DomiDemo2026!
+
+Administrador / CRM:
+  admin.demo@domiflow.test
+
+Cliente:
+  cliente.demo@domiflow.test
+
+Domiciliario:
+  domiciliario.demo@domiflow.test
+
+Comercios / propietarios demo:
+  comercio.r01@domiflow.test hasta comercio.r20@domiflow.test
+  comercio.m01@domiflow.test hasta comercio.m04@domiflow.test
+  comercio.d01@domiflow.test hasta comercio.d04@domiflow.test
+
+Ejemplos:
+  comercio.r01@domiflow.test  (restaurante)
+  comercio.m01@domiflow.test  (mercado)
+  comercio.d01@domiflow.test  (droguería)
+
+2) DEMO LOCAL DEL FRONTEND (SIN BACKEND NI SUPABASE)
+----------------------------------------------------
+Estas cuentas solo funcionan con VITE_USE_MOCK=true en front/.env.
+En modo mock, el frontend guarda los datos localmente en el navegador.
+
+Contraseña común: Demo1234
+
+Administrador:
+  admin@demo.com
+
+Cliente:
+  cliente@demo.com
+
+Repartidores:
+  repartidor@demo.com
+  repartidor2@demo.com
+
+Comercios:
+  comercio@demo.com
+  comercio2@demo.com
+  comercio3@demo.com
+  mercado@demo.com
+  farmacia@demo.com
+
+IMPORTANTE
+----------
+- Para la app conectada al backend, usa las cuentas de la sección 1 y deja
+  VITE_USE_MOCK=false en front/.env.
+- Si una cuenta backend no existe, ejecuta el seed indicado en la base Supabase.
+- Las credenciales de Supabase, JWT, Google Maps y Wompi no están en este archivo.
+  Configura esos secretos en sus archivos .env correspondientes; nunca los
+  compartas ni los publiques.

@@ -24,7 +24,9 @@ export default function Catalog() {
   const [favorites, setFavorites] = useState(() => { try { return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || []; } catch { return []; } });
   const { count } = useCart();
   const { data, loading, error, reload } = useFetch('/merchants', { interval: 15000 });
+  const { data: addresses } = useFetch('/addresses');
   const merchants = data || [];
+  const deliveryAddress = addresses?.find((address) => address.isDefault) || addresses?.[0];
   const term = q.trim().toLowerCase();
   const areas = useMemo(() => ['Todas las zonas', ...new Set(['Chapinero', 'Usaquén', 'Cedritos', ...merchants.map((m) => m.area).filter(Boolean)])], [merchants]);
   const list = merchants.filter((m) => (!term || [m.name, m.description, m.category, m.area].some((v) => v?.toLowerCase().includes(term)))
@@ -40,7 +42,7 @@ export default function Catalog() {
   return (
     <div className="space-y-9" data-testid="catalog-page">
       <section className="market-intro" aria-labelledby="market-title">
-        <p className="mb-2 flex items-center gap-2 text-sm font-bold text-[#bd482d]"><MapPin size={16} /> Bogotá · Chapinero <span className="rounded-full bg-white/70 px-2.5 py-1 text-xs text-[#66564e]">Zona de referencia</span></p>
+        <p className="mb-2 flex items-center gap-2 text-sm font-bold text-[#bd482d]"><MapPin size={16} /> {deliveryAddress ? `${deliveryAddress.street}${deliveryAddress.neighborhood ? `, ${deliveryAddress.neighborhood}` : ''}, ${deliveryAddress.city}` : 'Agrega tu dirección de entrega en Perfil'} <Link to="/perfil" className="rounded-full bg-white/70 px-2.5 py-1 text-xs text-[#66564e] underline">Cambiar</Link></p>
         <h1 id="market-title">Lo que necesitas,<br className="hidden sm:block" /> a la puerta de tu casa.</h1>
         <p className="mt-3">Comida rica, mercado y bienestar cerca de ti. Fácil de pedir, fácil de seguir.</p>
       </section>

@@ -122,7 +122,7 @@ Cupones de demostración: `BIENVENIDO10` y `PROMO5000`.
 
    Los otros propietarios usan `comercio.r02@domiflow.test` hasta `comercio.r20@domiflow.test`, `comercio.m01`–`m04` y `comercio.d01`–`d04`, con el mismo dominio y contraseña. Son cuentas compartidas para desarrollo; cambia o elimina todas antes de publicar la aplicación.
 
-El cliente usa `/cliente`, el administrador `/admin`, el domiciliario `/repartidor` y los propietarios `/comercio`; después del login la app dirige cada rol a su panel. Registra un pedido desde el cliente y usa **Aprobar**, **Rechazar** o **Dejar pendiente** en la pantalla Pago. Cada intento queda en `payment_attempts`, el estado vigente en `payments`, y el CRM muestra el registro de pagos.
+El cliente usa `/cliente`, el administrador `/admin`, el domiciliario `/repartidor` y los propietarios `/comercio`; después del login la app dirige cada rol a su panel. El login solo muestra correo y contraseña. Para probar pagos, crea el pedido como cliente y continúa al checkout Sandbox de Wompi; cada intento y su confirmación se guardan en `payment_attempts` y `payments`.
 
 ## Dónde configurar las claves
 
@@ -132,22 +132,32 @@ Los datos de conexión van únicamente en [`backend/.env`](backend/.env.example)
 
 ### Google Maps
 
-La clave del navegador va en `front/.env`, en `VITE_GOOGLE_MAPS_API_KEY`. Reinicia Vite al cambiarla. En Google Cloud habilita facturación, **Maps JavaScript API** y **Places API (New)**. En restricciones HTTP agrega `http://localhost:5173/*` y limita la clave a esas APIs. La dirección también ofrece ubicación del dispositivo por geolocalización del navegador y permite escribir manualmente; el GPS necesita permiso del navegador. Las claves `VITE_*` son visibles en el navegador, por eso deben estar restringidas. Consulta la [guía oficial del widget Places](https://developers.google.com/maps/documentation/javascript/place-autocomplete-new) y la [configuración de facturación de Maps JavaScript API](https://developers.google.com/maps/documentation/javascript/usage-and-billing).
+La clave del navegador va en `front/.env`, en `VITE_GOOGLE_MAPS_API_KEY`. Reinicia Vite al cambiarla. En Google Cloud habilita facturación, **Maps JavaScript API** y **Places API (New)**. En restricciones HTTP agrega `http://localhost:5173/*` y limita la clave a esas APIs. La dirección también ofrece ubicación del dispositivo por geolocalización del navegador y permite escribir manualmente; el GPS necesita permiso del navegador. Al seleccionar una dirección con Maps o guardar coordenadas GPS, el perfil y checkout muestran el mapa centrado en el punto exacto de entrega. Las claves `VITE_*` son visibles en el navegador, por eso deben estar restringidas. Consulta la [guía oficial del widget Places](https://developers.google.com/maps/documentation/javascript/place-autocomplete-new) y la [configuración de facturación de Maps JavaScript API](https://developers.google.com/maps/documentation/javascript/usage-and-billing).
 
 No envíes tus claves en el chat: configúralas directamente en esos archivos locales. Los `.env` están ignorados por Git.
+
+### Wompi
+
+El checkout del proyecto está preparado para Wompi **Sandbox**. Crea/activa tu comercio en el [dashboard de Wompi](https://comercios.wompi.co/) y selecciona el ambiente de pruebas. Copia las llaves de prueba con prefijos `pub_test_`, `test_integrity_` y `test_events_` en `backend/.env` usando los nombres que ya están allí. El checkout web no necesita la llave privada `prv_test_`; no pongas secretos de integridad/eventos ni llaves privadas en el frontend. Los prefijos y ambientes se describen en la [documentación oficial](https://docs.wompi.co/docs/colombia/ambientes-y-llaves/).
+
+El flujo ya implementado funciona así: Spring crea un intento único, toma el valor autoritativo del pedido, lo convierte a centavos y crea la firma SHA-256; React redirige al formulario oficial de Wompi Checkout. Wompi notifica el resultado a `POST /api/webhooks/wompi`; Spring valida el checksum del evento y solo entonces actualiza `orders`, `payments` y `payment_attempts`. La URL de retorno solo muestra el estado y no se usa como prueba de pago. Ver [Checkout Web](https://docs.wompi.co/docs/colombia/widget-checkout-web/) y [validación de webhooks](https://docs.wompi.co/docs/colombia/eventos/).
+
+Para recibir webhooks cuando desarrollas en local, publica temporalmente el puerto `8080` mediante un túnel HTTPS (por ejemplo, ngrok o Cloudflare Tunnel) y configura en el dashboard de Sandbox la URL pública terminada en `/api/webhooks/wompi`. El túnel debe estar activo durante la prueba. Usa los [datos oficiales de prueba de Sandbox](https://docs.wompi.co/docs/colombia/datos-de-prueba-en-sandbox/). En la cuenta, habilita los medios de pago que quieres probar.
+
+Sandbox permite hacer transacciones de prueba sin mover dinero. La integración/uso no significa que los pagos reales sean gratis: Wompi publica para el Plan Avanzado una tarifa de **2,65% + $700 COP + IVA por transacción exitosa**; el IVA se aplica sobre la comisión. El Plan Gateway no cobra comisión de Wompi, pero requiere negociar las tarifas con el medio de pago/Bancolombia. Confirma el plan y las tarifas vigentes directamente con [Wompi](https://soporte.wompi.co/hc/es-419/articles/360020957133--Cu%C3%A1les-son-los-planes-y-tarifas-que-maneja-la-plataforma-Wompi).
 
 ## Funciones incluidas en la API
 
 - Registro, inicio de sesión y perfil con JWT y contraseñas BCrypt.
 - Control de permisos y propiedad de registros; se valida la cuenta activa y el rol vigente contra la base de datos en las peticiones autenticadas.
 - Catálogo público, detalle de comercios, productos y validación de cupones.
-- Direcciones propias, dirección predeterminada y coordenadas opcionales de Maps.
-- Creación transaccional de pedidos, comprobación y bloqueo de inventario, snapshots de productos, pago simulado, historial, seguimiento y calificaciones.
+- Direcciones propias con barrio/localidad y coordenadas de Maps; el perfil y el checkout muestran el mapa centrado en la dirección de entrega seleccionada.
+- Creación transaccional de pedidos, comprobación y bloqueo de inventario, snapshots de productos, checkout Wompi Sandbox con firma y webhook verificado, historial, seguimiento y calificaciones.
 - Operación de comercios, productos, categorías, repartos, disponibilidad de repartidores y notificaciones.
 - Cupones y promociones consultados desde tablas relacionadas; la redención queda asociada al pedido y respeta vigencia, comercio opcional y límite de usos.
 - Endpoints de CRM para indicadores, cuentas, empleados, comercios y asignación de entregas.
 
-Los pagos son simulados; el proyecto todavía no integra una pasarela real. Para producción, coloca la API detrás de HTTPS, establece CORS para el dominio desplegado y usa secretos fuertes en variables del servidor.
+La configuración incluida solo admite Sandbox y no procesa dinero real. Antes de habilitar producción hay que revisar credenciales, HTTPS, URL de eventos, CORS, políticas de reembolsos y conciliación.
 
 ## Comandos útiles
 
@@ -172,7 +182,7 @@ Todas las rutas llevan el prefijo `/api`. Las rutas protegidas reciben `Authoriz
 | Sesión | `POST /auth/register`, `POST /auth/login`, `GET/PATCH /auth/me` |
 | Catálogo | `GET /categories`, `GET /merchants`, `GET /merchants/{id}`, `POST /cart/validate` |
 | Direcciones | `GET/POST /addresses`, `PUT/DELETE /addresses/{id}` |
-| Pedidos | `GET/POST /orders`, `GET /orders/{id}`, `PATCH /orders/{id}/status`, `POST /payments/simulate`, `POST /orders/{id}/rating` |
+| Pedidos y pagos | `GET/POST /orders`, `GET /orders/{id}`, `PATCH /orders/{id}/status`, `POST /orders/{id}/payments/wompi/session`, `GET /payments/provider`, `POST /webhooks/wompi`, `POST /orders/{id}/rating` |
 | Comercio | `/my/merchant`, `/my/products`, `/my/categories`, `GET /orders`, `PATCH /orders/{id}/status` |
 | Reparto | `GET /deliveries`, `POST /deliveries/{id}/take`, `PATCH /deliveries/{id}/status` |
 | CRM | `/admin/stats`, `/admin/users`, `/admin/merchants`, `/admin/employees`, `/admin/deliveries`, `/admin/payments` |

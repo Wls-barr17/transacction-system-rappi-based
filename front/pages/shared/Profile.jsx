@@ -7,12 +7,13 @@ import { api } from '../../lib/api';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/AppButton';
 import Modal from '../../components/ui/Modal';
+import DeliveryAddressMap from '../../components/ui/DeliveryAddressMap';
 import { EmptyState, ErrorState, Loading, PageHeader } from '../../components/ui/States';
-import { isGoogleMapsConfigured, loadGooglePlaces } from '../../lib/googleMaps';
+import { isGoogleMapsConfigured, loadGoogleMaps } from '../../lib/googleMaps';
 
 function AddressForm({ initial, onSaved, onCancel }) {
   const toast = useToast();
-  const [f, setF] = useState(initial || { label: '', street: '', city: 'Bogotá', notes: '', latitude: null, longitude: null });
+  const [f, setF] = useState(() => ({ label: '', street: '', neighborhood: '', city: 'Bogotá', notes: '', latitude: null, longitude: null, ...initial }));
   const [touched, setTouched] = useState(false);
   const [mapsError, setMapsError] = useState('');
   const [locationBusy, setLocationBusy] = useState(false);
@@ -27,19 +28,22 @@ function AddressForm({ initial, onSaved, onCancel }) {
     const onPlaceSelect = async ({ placePrediction }) => {
       try {
         const place = placePrediction.toPlace();
-        await place.fetchFields({ fields: ['formattedAddress', 'location'] });
+        await place.fetchFields({ fields: ['formattedAddress', 'location', 'addressComponents'] });
         if (!active) return;
-        setF((current) => ({ ...current, street: place.formattedAddress || current.street, city: 'Bogotá', latitude: place.location?.lat() ?? null, longitude: place.location?.lng() ?? null }));
+        const components = place.addressComponents || [];
+        const getComponent = (...types) => components.find((component) => types.some((type) => component.types?.includes(type)))?.longText || '';
+        const neighborhood = getComponent('neighborhood', 'sublocality_level_1', 'sublocality');
+        const city = getComponent('locality', 'administrative_area_level_2') || 'Bogotá';
+        setF((current) => ({ ...current, street: place.formattedAddress || current.street, neighborhood, city, latitude: place.location?.lat() ?? null, longitude: place.location?.lng() ?? null }));
         setMapsError('');
       } catch { setMapsError('No pudimos leer esa dirección. Puedes escribirla manualmente.'); }
     };
-    loadGooglePlaces().then(async (google) => {
+    loadGoogleMaps().then(async (google) => {
       const { PlaceAutocompleteElement } = await google.maps.importLibrary('places');
       if (!active || !placesRef.current) return;
       widget = new PlaceAutocompleteElement({ includedRegionCodes: ['co'] });
       widget.placeholder = 'Busca una dirección en Bogotá';
       widget.setAttribute('aria-label', 'Buscar dirección en Google Maps');
-      widget.locationBias = { radius: 22000, center: { lat: 4.711, lng: -74.0721 } };
       widget.addEventListener('gmp-select', onPlaceSelect);
       placesRef.current.replaceChildren(widget);
     }).catch((error) => { if (active) setMapsError(`${error.message || 'Google Maps no pudo cargarse.'} Puedes escribir la dirección manualmente.`); });
@@ -73,7 +77,9 @@ function AddressForm({ initial, onSaved, onCancel }) {
       <Input label="Nombre" value={f.label} onChange={set('label')} error={touched && errs.label} data-testid="address-label" />
       {isGoogleMapsConfigured && <div><label className="mb-1 block text-sm font-semibold text-slate-800">Buscar con Google Maps</label><div ref={placesRef} className="maps-place-picker" />{mapsError && <p role="status" className="mt-1 text-xs text-amber-800">{mapsError}</p>}</div>}
       {!isGoogleMapsConfigured && <p className="text-xs text-slate-600">El buscador de Maps requiere `VITE_GOOGLE_MAPS_API_KEY` en `front/.env`; puedes escribir la dirección manualmente.</p>}
-      <Input label="Dirección" value={f.street} onChange={(e) => setF((current) => ({ ...current, street: e.target.value, latitude: null, longitude: null }))} error={touched && errs.street} hint={f.latitude != null ? 'Ubicación verificada en el mapa.' : undefined} data-testid="address-street" />
+      <Input label="Dirección" value={f.street} onChange={(e) => setF((current) => ({ ...current, street: e.target.value, neighborhood: '', latitude: null, longitude: null }))} error={touched && errs.street} hint={f.latitude != null ? 'Ubicación verificada en el mapa.' : undefined} data-testid="address-street" />
+      <Input label="Barrio o localidad" value={f.neighborhood || ''} onChange={set('neighborhood')} placeholder="Ej. Chapinero Alto" />
+      {(f.latitude != null || f.longitude != null) && <DeliveryAddressMap latitude={f.latitude} longitude={f.longitude} address={`${f.street}${f.neighborhood ? `, ${f.neighborhood}` : ''}, ${f.city}`} />}
       <div><Button type="button" size="sm" variant="secondary" icon={LocateFixed} loading={locationBusy} onClick={getCurrentLocation}>Usar mi ubicación actual</Button>{locationMessage && <p role="status" className="mt-1 text-xs text-slate-600">{locationMessage}</p>}</div>
       <Input label="Ciudad" value={f.city} onChange={set('city')} error={touched && errs.city} />
       <Input label="Indicaciones (opcional)" value={f.notes} onChange={set('notes')} />
@@ -134,7 +140,7 @@ export default function Profile() {
                       <div>
                         <p className="flex items-center gap-2 font-bold"><MapPin className="h-4 w-4 text-brand-700" aria-hidden="true" />{a.label}
                           {a.isDefault && <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-900">Predeterminada</span>}</p>
-                        <p className="mt-1 text-sm">{a.street}, {a.city}</p>
+                        <p className="mt-1 text-sm">{a.street}{a.neighborhood ? `, ${a.neighborhood}` : ''}, {a.city}</p>
                         {a.notes && <p className="text-sm text-slate-600">{a.notes}</p>}
                       </div>
                     </div>

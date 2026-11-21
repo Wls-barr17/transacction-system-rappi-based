@@ -7,16 +7,6 @@ import { useAuth } from '../../context/AuthContext';
 import { homeFor } from '../../lib/constants';
 import { EMAIL_RE } from '../../lib/utils';
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
-const SEEDED_DEMOS = [
-  ['Cliente', 'cliente.demo@domiflow.test'],
-  ['Administrador / CRM', 'admin.demo@domiflow.test'],
-  ['Domiciliario', 'domiciliario.demo@domiflow.test'],
-  ['Comercio R01', 'comercio.r01@domiflow.test'],
-];
-const MOCK_DEMOS = [['Cliente', 'cliente@demo.com'], ['Comercio', 'comercio@demo.com'], ['Domiciliario', 'repartidor@demo.com'], ['Admin', 'admin@demo.com']];
-const DEMO_PASSWORD = USE_MOCK ? 'Demo1234' : 'DomiDemo2026!';
-
 // Inspirado en "sign-in" de 21st.dev
 export default function SignIn() {
   const { user, login } = useAuth();
@@ -59,7 +49,7 @@ export default function SignIn() {
             <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-700 text-white"><Bike className="h-5 w-5" aria-hidden="true" /></span>DomiFlow
           </Link>
           <h1 className="text-3xl font-extrabold">Inicia sesión</h1>
-          <p className="mt-1 text-slate-600">Entra para pedir, atender o repartir.</p>
+          <p className="mt-1 text-slate-600">Ingresa tus datos para continuar.</p>
 
           {error && (
             <div role="alert" data-testid="signin-error" className="mt-4 flex items-start gap-2 rounded-xl border border-red-300 bg-red-50 p-3 text-sm font-medium text-red-900">
@@ -78,16 +68,6 @@ export default function SignIn() {
           <Button type="submit" size="lg" loading={loading} icon={LogIn} className="mt-6 w-full" data-testid="signin-submit">Entrar</Button>
           <p className="mt-4 text-center text-sm text-slate-700">¿No tienes cuenta? <Link to="/registro" className="font-bold text-brand-700 underline">Regístrate</Link></p>
 
-          <div className="mt-8 rounded-xl border border-dashed border-slate-300 p-4">
-            <p className="text-sm font-semibold">Acceso de demostración {USE_MOCK ? '(modo local)' : '(requiere cargar el seed en Supabase)'}</p>
-            <p className="mt-1 text-xs text-slate-600">Contraseña: <span className="font-semibold">{DEMO_PASSWORD}</span></p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {(USE_MOCK ? MOCK_DEMOS : SEEDED_DEMOS).map(([label, mail]) => (
-                <button key={mail} type="button" onClick={() => { setEmail(mail); setPassword(DEMO_PASSWORD); }}
-                  className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold hover:bg-slate-50">{label}</button>
-              ))}
-            </div>
-          </div>
         </form>
       </div>
       <div className="relative hidden overflow-hidden bg-slate-950 lg:block" aria-hidden="true">

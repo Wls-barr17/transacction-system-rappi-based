@@ -29,7 +29,7 @@ public class MarketplaceController {
 
   @GetMapping("/admin/payments") public List<Map<String,Object>> adminPayments(org.springframework.security.core.Authentication a) {
     role(principal(a),"ADMINISTRADOR");
-    return db.queryForList("select pa.id,pa.order_id as \"orderId\",o.code as \"orderCode\",u.name as \"customerName\",m.name as \"merchantName\",pa.method,pa.amount,pa.status,pa.transaction_reference as \"transactionReference\",pa.created_at as \"createdAt\",pa.attempt_number as \"attemptNumber\" from payment_attempts pa join orders o on o.id=pa.order_id join app_users u on u.id=o.customer_id join merchants m on m.id=o.merchant_id order by pa.created_at desc limit 100");
+    return db.queryForList("select pa.id,pa.order_id as \"orderId\",o.code as \"orderCode\",u.name as \"customerName\",m.name as \"merchantName\",pa.method,pa.amount,pa.status,pa.transaction_reference as \"transactionReference\",pa.provider_response->>'transactionId' as \"providerTransactionId\",pa.provider_response->>'paymentMethodType' as \"paymentMethodType\",case when pa.provider_response->>'provider'='WOMPI' then 'WOMPI' else 'SIMULADO' end as provider,pa.created_at as \"createdAt\",pa.attempt_number as \"attemptNumber\" from payment_attempts pa join orders o on o.id=pa.order_id join app_users u on u.id=o.customer_id join merchants m on m.id=o.merchant_id order by pa.created_at desc limit 100");
   }
 
   @GetMapping("/admin/users") public List<Map<String,Object>> adminUsers(org.springframework.security.core.Authentication a) { role(principal(a),"ADMINISTRADOR");return db.queryForList("select id,name,email,phone,role,active,available,created_at as \"createdAt\" from app_users order by created_at desc"); }

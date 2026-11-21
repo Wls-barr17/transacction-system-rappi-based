@@ -27,9 +27,4 @@ public class OrderController {
   @GetMapping("/orders/{id}") public Map<String, Object> get(Authentication auth, @PathVariable UUID id) { return orders.get(actor(auth), id); }
   @PatchMapping("/orders/{id}/status") public Map<String, Object> updateStatus(Authentication auth, @PathVariable UUID id, @RequestBody Map<String, Object> body) { return orders.changeStatus(actor(auth), id, body.get("status") == null ? "" : body.get("status").toString()); }
   @PostMapping("/orders/{id}/rating") public Map<String, Object> rate(Authentication auth, @PathVariable UUID id, @RequestBody Map<String, Object> body) { return orders.rate(actor(auth), id, body); }
-  @PostMapping("/payments/simulate") public Map<String, Object> simulatePayment(Authentication auth, @RequestBody Map<String, Object> body) {
-    UUID orderId;
-    try { orderId = UUID.fromString(body.get("orderId").toString()); } catch (Exception e) { throw new co.domiflow.api.ApiErrors.ApiException(org.springframework.http.HttpStatus.BAD_REQUEST, "Pedido no válido"); }
-    return orders.simulatePayment(actor(auth), orderId, body.get("result") == null ? "" : body.get("result").toString());
-  }
 }
